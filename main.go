@@ -1,8 +1,8 @@
 package main
 
 import (
-	"ewallet-framework/cmd"
-	helpers "ewallet-framework/helpers"
+	"ewallet-ums/cmd"
+	helpers "ewallet-ums/helpers"
 )
 
 func main() {
@@ -13,7 +13,7 @@ func main() {
 	helpers.SetupLogger()
 
 	//load database
-	// helpers.SetupMySQL()
+	helpers.SetupMySQL()
 
 	//run grpc
 	go cmd.ServeGRPC()

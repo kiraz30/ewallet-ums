@@ -1,7 +1,7 @@
 package cmd
 
 import (
-	"ewallet-framework/helpers"
+	"ewallet-ums/helpers"
 	"log"
 	"net"
 

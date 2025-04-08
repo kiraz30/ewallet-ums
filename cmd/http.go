@@ -1,9 +1,9 @@
 package cmd
 
 import (
-	"ewallet-framework/helpers"
-	"ewallet-framework/internal/api"
-	"ewallet-framework/internal/services"
+	"ewallet-ums/helpers"
+	"ewallet-ums/internal/api"
+	"ewallet-ums/internal/services"
 	"log"
 
 	"github.com/gin-gonic/gin"
