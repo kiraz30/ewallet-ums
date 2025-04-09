@@ -2,7 +2,9 @@ package helpers
 
 import "github.com/sirupsen/logrus"
 
-func SetupLogger() *logrus.Logger {
+var Logger *logrus.Logger
+
+func SetupLogger() {
 	//use farmework logrus
 	log := logrus.New()
 
@@ -10,5 +12,5 @@ func SetupLogger() *logrus.Logger {
 		PrettyPrint: true,
 	})
 	log.Info("Logger initialized Using logrus")
-	return log
+	Logger = log
 }
