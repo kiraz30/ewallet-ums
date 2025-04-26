@@ -1,7 +1,7 @@
 package api
 
 import (
-	"ewallet-ums/constans"
+	"ewallet-ums/constants"
 	"ewallet-ums/helpers"
 	"ewallet-ums/internal/interfaces"
 	"ewallet-ums/internal/models"
@@ -23,22 +23,22 @@ func (api *LoginHandler) Login(c *gin.Context) {
 
 	if err := c.ShouldBindJSON(&req); err != nil {
 		log.Info("Failded to parse requst:", err)
-		helpers.SendResponseHTTP(c, http.StatusBadRequest, constans.ErrFailedBadRequest, nil)
+		helpers.SendResponseHTTP(c, http.StatusBadRequest, constants.ErrFailedBadRequest, nil)
 		return
 	}
 	if err := req.Validate(); err != nil {
 		log.Info("Failded to validate:", err)
-		helpers.SendResponseHTTP(c, http.StatusBadRequest, constans.ErrFailedBadRequest, nil)
+		helpers.SendResponseHTTP(c, http.StatusBadRequest, constants.ErrFailedBadRequest, nil)
 		return
 	}
 
 	resp, err := api.LoginService.Login(c.Request.Context(), req)
 	if err != nil {
 		log.Info("Failded on login service:", err)
-		helpers.SendResponseHTTP(c, http.StatusInternalServerError, constans.ErrServerError, nil)
+		helpers.SendResponseHTTP(c, http.StatusInternalServerError, constants.ErrServerError, nil)
 		return
 	}
 
-	helpers.SendResponseHTTP(c, http.StatusOK, constans.SuccessMessage, resp)
+	helpers.SendResponseHTTP(c, http.StatusOK, constants.SuccessMessage, resp)
 	return
 }

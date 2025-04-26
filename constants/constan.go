@@ -1,4 +1,4 @@
-package constans
+package constants
 
 const (
 	ErrFailedBadRequest = "data tidak sesuai"

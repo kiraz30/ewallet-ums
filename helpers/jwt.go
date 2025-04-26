@@ -3,14 +3,16 @@ package helpers
 import (
 	"context"
 	"fmt"
+	"log"
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
 )
 
 type ClaimToken struct {
+	UserID   int    `json:"user_id"`
 	Username string `json:"username"`
-	Fullname string `json:"fullname"`
+	Fullname string `json:"full_name"`
 	jwt.RegisteredClaims
 }
 
@@ -22,7 +24,9 @@ var MapTypeToken = map[string]time.Duration{
 var jwtSecret = []byte(GetEnv("APP_SECRET", ""))
 
 func GenerateToken(ctx context.Context, userID int, username, fullname, tokenType string, now time.Time) (string, error) {
-	claim := ClaimToken{
+	now = time.Now()
+	claimToken := ClaimToken{
+		UserID:   userID,
 		Username: username,
 		Fullname: fullname,
 		RegisteredClaims: jwt.RegisteredClaims{
@@ -31,8 +35,9 @@ func GenerateToken(ctx context.Context, userID int, username, fullname, tokenTyp
 			ExpiresAt: jwt.NewNumericDate(now.Add(MapTypeToken[tokenType])),
 		},
 	}
+	log.Println("Generated ExpiresAt:", now.Add(MapTypeToken[tokenType]))
 
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claim)
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claimToken)
 	resulToken, err := token.SignedString(jwtSecret)
 	if err != nil {
 		return resulToken, fmt.Errorf("failed to generate token: %v", err)
@@ -46,12 +51,13 @@ func ValidateToken(ctx context.Context, token string) (*ClaimToken, error) {
 		claimToken *ClaimToken
 		ok         bool
 	)
-	jwtToken, err := jwt.ParseWithClaims(token, &ClaimToken{}, func(t *jwt.Token) (interface{}, error) {
-		if _, ok := t.Method.(*jwt.SigningMethodHMAC); !ok {
-			return nil, fmt.Errorf("unexpected signing method: %v", t.Header["alg"])
-		}
-		return jwtSecret, nil
-	})
+	jwtToken, err := jwt.ParseWithClaims(token, &ClaimToken{},
+		func(t *jwt.Token) (interface{}, error) {
+			if _, ok := t.Method.(*jwt.SigningMethodHMAC); !ok {
+				return nil, fmt.Errorf("unexpected signing method: %v", t.Header["alg"])
+			}
+			return jwtSecret, nil
+		})
 
 	if err != nil {
 		return nil, fmt.Errorf("failed to parse token: %v", err)

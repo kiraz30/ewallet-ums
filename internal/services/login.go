@@ -19,7 +19,7 @@ func (s *LoginService) Login(ctx context.Context, request models.LoginRequest) (
 
 	var (
 		response models.LoginReponse
-		now      = time.Now()
+		now      = time.Now().UTC()
 	)
 	userDetail, err := s.UserRepo.GetUserByUserName(ctx, request.Username)
 	if err != nil {

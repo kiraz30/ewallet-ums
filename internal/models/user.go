@@ -30,12 +30,12 @@ func (l User) Validate() error {
 }
 
 type UserSession struct {
-	ID                  int `gorm:"primaryKey"`
+	ID                  int `gorm:"primarykey"`
 	CreatedAt           time.Time
 	UpdatedAt           time.Time
 	UserID              int       `json:"user_id" gorm:"type:int" validate:"required"`
-	Token               string    `json:"token" gorm:"type:varchar(255)" validate:"required"`
-	RefreshToken        string    `json:"refresh_token" gorm:"type:varchar(255)" validate:"required"`
+	Token               string    `json:"token" gorm:"type:text" validate:"required"`
+	RefreshToken        string    `json:"refresh_token" gorm:"type:text" validate:"required"`
 	TokenExpired        time.Time `json:"-" validate:"required"`
 	RefreshTokenExpired time.Time `json:"-" validate:"required"`
 }
