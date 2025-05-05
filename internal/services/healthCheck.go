@@ -1,6 +1,8 @@
 package services
 
-import "ewallet-ums/internal/interfaces"
+import (
+	"ewallet-ums/internal/interfaces"
+)
 
 type HealthCheck struct {
 	HealthCheckRepository interfaces.IHealthCheckRepository

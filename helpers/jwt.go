@@ -19,9 +19,9 @@ var MapTypeToken = map[string]time.Duration{
 	"refresh_token": time.Hour * 72,
 }
 
-var jwtSecret = []byte(GetEnv("APP_SECRET", ""))
-
 func GenerateToken(ctx context.Context, userID int, username, fullname, tokenType string, now time.Time) (string, error) {
+	jwtSecret := []byte(GetEnv("APP_SECRET", ""))
+
 	claim := ClaimToken{
 		Username: username,
 		Fullname: fullname,
@@ -31,7 +31,6 @@ func GenerateToken(ctx context.Context, userID int, username, fullname, tokenTyp
 			ExpiresAt: jwt.NewNumericDate(now.Add(MapTypeToken[tokenType])),
 		},
 	}
-
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claim)
 	resulToken, err := token.SignedString(jwtSecret)
 	if err != nil {
@@ -41,23 +40,35 @@ func GenerateToken(ctx context.Context, userID int, username, fullname, tokenTyp
 
 }
 
-func ValidateToken(ctx context.Context, token string) (*ClaimToken, error) {
-	var (
-		claimToken *ClaimToken
-		ok         bool
+func ValidateToken(ctx context.Context, tokenString string) (*ClaimToken, error) {
+	jwtSecret := []byte(GetEnv("APP_SECRET", ""))
+
+	parser := jwt.NewParser(
+		jwt.WithValidMethods([]string{"HS256"}), // hanya izinkan HS256
+		jwt.WithoutClaimsValidation(),           // <<== ini penting
 	)
-	jwtToken, err := jwt.ParseWithClaims(token, &ClaimToken{}, func(t *jwt.Token) (interface{}, error) {
-		if _, ok := t.Method.(*jwt.SigningMethodHMAC); !ok {
-			return nil, fmt.Errorf("unexpected signing method: %v", t.Header["alg"])
+	// Parse token
+	token, err := parser.ParseWithClaims(tokenString, &ClaimToken{}, func(token *jwt.Token) (interface{}, error) {
+		// Validasi algoritma
+		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
 		}
 		return jwtSecret, nil
 	})
 
 	if err != nil {
-		return nil, fmt.Errorf("failed to parse token: %v", err)
+		return nil, fmt.Errorf("token parsing error: %w", err)
 	}
-	if claimToken, ok = jwtToken.Claims.(*ClaimToken); !ok || !jwtToken.Valid {
+
+	// Ambil claim jika token valid
+	claims, ok := token.Claims.(*ClaimToken)
+	if !ok || !token.Valid {
 		return nil, fmt.Errorf("invalid token")
 	}
-	return claimToken, nil
+
+	// Tambahkan log ini
+	fmt.Println("Now:", time.Now())
+	fmt.Println("Token expires at:", claims.ExpiresAt.Time)
+
+	return claims, nil
 }

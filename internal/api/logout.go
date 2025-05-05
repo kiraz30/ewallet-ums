@@ -1,0 +1,29 @@
+package api
+
+import (
+	"ewallet-ums/constans"
+	"ewallet-ums/helpers"
+	"ewallet-ums/internal/interfaces"
+	"net/http"
+
+	"github.com/gin-gonic/gin"
+)
+
+type LogoutHandler struct {
+	LogoutService interfaces.ILogoutService
+}
+
+func (api *LogoutHandler) Logout(c *gin.Context) {
+	var (
+		log = helpers.Logger
+	)
+	token := c.Request.Header.Get("Authorization")
+	err := api.LogoutService.Logout(c.Request.Context(), token)
+	if err != nil {
+		log.Info("Failded on logout service:", err)
+		helpers.SendResponseHTTP(c, http.StatusInternalServerError, constans.ErrServerError, nil)
+		return
+	}
+
+	helpers.SendResponseHTTP(c, http.StatusOK, constans.SuccessMessage, nil)
+}
