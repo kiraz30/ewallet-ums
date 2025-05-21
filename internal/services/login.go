@@ -26,20 +26,20 @@ func (s *LoginService) Login(ctx context.Context, request models.LoginRequest) (
 		return response, errors.Wrap(err, "failed to get user by username")
 	}
 
-	if err = bcrypt.CompareHashAndPassword([]byte(userDetail.Password), []byte(request.Password)); err != nil {
+	if err := bcrypt.CompareHashAndPassword([]byte(userDetail.Password), []byte(request.Password)); err != nil {
 		return response, errors.Wrap(err, "failed to compare password")
 	}
 
-	token, err := helpers.GenerateToken(ctx, userDetail.ID, userDetail.Username, userDetail.FullName, "token", now)
+	token, err := helpers.GenerateToken(ctx, userDetail.ID, userDetail.Username, userDetail.FullName, "token", userDetail.Email, now)
 	if err != nil {
 		return response, errors.Wrap(err, "failed to generate token")
 	}
-	refreshToken, err := helpers.GenerateToken(ctx, userDetail.ID, userDetail.Username, userDetail.FullName, "token", now)
+	refreshToken, err := helpers.GenerateToken(ctx, userDetail.ID, userDetail.Username, userDetail.FullName, "token", userDetail.Email, now)
 	if err != nil {
 		return response, errors.Wrap(err, "failed to generate refresh token")
 	}
 
-	//session
+	// session
 	userSession := &models.UserSession{
 		UserID:              userDetail.ID,
 		Token:               token,
